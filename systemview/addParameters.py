@@ -5,6 +5,15 @@ trading statistics display program
 # file names
 file1 = "spx.csv"
 file2 = "simple system Trade List.csv"
+# trade list file columns and date structure
+dateFormat = "DMY"
+dateSeparator = "/"
+entryDateCol = 2
+entryPriceCol = 3
+exitDateCol = 4
+exitPriceCol = 5
+profitCol = 7
+daysInTradeCol = 12
 # indicator constants
 maLength = 21
 # print debug info

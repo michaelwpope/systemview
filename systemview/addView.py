@@ -2,7 +2,11 @@
 
 """
 DESCRIPTION
-    Suggested additions to SystemView    
+    Suggested additions to SystemView
+
+VERSION
+    0.2 - update getTradeList() to handle different trade list file structures
+    0.1 - initial release
 
 AUTHOR
     SystemView: John Bollinger <BBands@BollingerBands.com>
@@ -24,13 +28,18 @@ import addParameters as param
 
 # version number
 __author__ = "Michael Pope"
-__version__ = "0.1"
+__version__ = "0.2"
 
 
-def amibroker_to_iso_date(date):
-    """Convert AmiBroker's date to datetime object."""
-    date = date.split('/')
-    return datetime.date(int(date[2]), int(date[1]), int(date[0]))
+def string_to_iso_date(date):
+    """Convert date string to datetime object."""
+    date = date.split(param.dateSeparator)
+    if param.dateFormat == "DMY":
+        return datetime.date(int(date[2]), int(date[1]), int(date[0]))
+    if param.dateFormat == "MDY":
+        return datetime.date(int(date[2]), int(date[0]), int(date[1]))
+    if param.dateFormat == "YMD":
+        return datetime.date(int(date[0]), int(date[1]), int(date[2]))
 
 
 class addedView(View):
@@ -51,10 +60,13 @@ class addedView(View):
             # 0 = Symbol, 1 = Trade, 2 = Date, 3 = Price, 4 = Ex. date, 5 = Ex. Price,
             # 6 = % chg, 7 = Profit, 8 = % Profit, 9 = Shares, 10 = Position value,
             # 11 = Cum. Profit, 12 = # bars, 13 = Profit/bar, 14 = MAE, 15 = MFE
-            entryDate = amibroker_to_iso_date(data[2])
-            trade = float(data[5])/float(data[3])-1
-            daysInTrade = int(float(data[12]))-1
-            exitDate = amibroker_to_iso_date(data[4])
+            entryDate = string_to_iso_date(data[param.entryDateCol])
+            exitDate = string_to_iso_date(data[param.exitDateCol])
+            daysInTrade = int(float(data[param.daysInTradeCol]))-1
+            try:
+                trade = float(data[param.profitCol])
+            except:
+                trade = float(data[param.exitPriceCol])/float(data[param.entryPriceCol])-1
             self.trades.append([entryDate, trade, daysInTrade, exitDate])
             if trade > 0.0:
                 self.wins.append(trade)
